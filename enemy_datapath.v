@@ -1,0 +1,142 @@
+module enemy_datapath(start,num,clock,resetn,cnt,delay_cnt,loadX,loadY,load_colour,load_black,
+						reset_delay,en_counter,en_delay_counter,xValue,yValue,colourValue);
+	input start,num;
+	input clock,resetn,loadX,loadY,load_colour,en_counter,en_delay_counter,load_black;
+	input reset_delay;	
+	output reg[7:0] xValue;
+	output reg[6:0] yValue;
+	output reg[2:0] colourValue;
+	output [3:0] cnt; 
+	output [3:0] delay_cnt;
+//	output done;
+	wire [7:0] xout;
+	wire [6:0] yout;
+	wire [2:0] colout_out;
+	wire c;
+	wire CLOCK;
+	assign CLOCK=(start==num)? clock:0;
+	//assign done=start;
+	register8bit Xcounter(CLOCK,resetn,num,loadX,xout);
+	register7bit Ycounter(CLOCK,resetn,loadX,loadY,yout);
+	wire [2:0] coo;
+	assign coo[0]=(xout[7]+xout[6]);
+	assign coo[2:1]=(num==0)? xout[5:4]:{xout[4],xout[5]};
+	register3bit R_Colour(CLOCK,resetn,load_colour,coo,colout_out);
+	counter counter_no_delay (CLOCK,resetn,en_counter,cnt);
+	delay_counter delayCounter(num,CLOCK,resetn,en_delay_counter,c);
+	counter counter_with_delay(CLOCK,reset_delay,c,delay_cnt);
+
+	always @(*)
+	if (num==start)
+	begin
+	  colourValue = load_black? 3'b0:colout_out;
+	  xValue = xout[7:0] + {6'b0,cnt[1:0]};
+	  yValue = yout[6:0] + {5'b0,cnt[3:2]};
+	end
+endmodule 
+
+
+
+
+module register8bit(clock,resetn,num,load,q);
+	input [1:0] num;
+	input clock;
+	input resetn;
+	input load;
+	output reg[7:0] q;
+									
+	always@(posedge clock)
+		if(resetn == 1'b0)
+			q <= 32+num*64;
+		else if (load)
+		begin
+			q[3:0]<=4'b0;
+			if (({q[7]^q[4],q[7]^q[5],q[5]^q[6],q[6]^q[4]}+num)<=3'b111)
+				q[7:4]<=({q[7]^q[4],q[7]^q[5],q[5]^q[6],q[6]^q[4]}+num)+1'b1;
+			else 
+				q[7:4]<=({q[7]^q[4],q[7]^q[5],q[5]^q[6],q[6]^q[4]}+num)-3'b111;
+		end
+
+			
+endmodule 
+
+module register7bit(clock,resetn,loadx,loady,Q);
+	input clock;
+	input resetn;
+	input loadx,loady;
+	output reg [6:0] Q;
+	always@(posedge clock)
+		if(resetn == 1'b0)
+			Q <= 7'b0;
+		else if (loadx)
+			Q <= 7'b0;
+		else if (loady)
+			Q <= Q + 1;
+
+endmodule 
+
+module register3bit(clock,resetn,load,D,Q);
+	input clock;
+	input resetn;
+	input load;
+	input [2:0] D;
+	output reg [2:0] Q;
+	always@(posedge clock)
+		if(resetn == 1'b0)
+			Q <= 3'b0;
+		else if (load)
+			Q <= D;
+endmodule 
+
+
+module counter (clock,resetn,enable,Q);
+	input clock;
+	input resetn;
+	input enable;
+	output reg [3:0] Q;
+	always @(posedge clock)
+		if(resetn == 1'b0)
+			Q <= 4'b0;
+		else if(enable == 1'b1)
+		begin 
+		if(Q == 4'b1111)
+			Q <= 4'b0;
+		else 
+			Q <= Q + 1'b1;
+		end
+endmodule 
+
+module delay_counter(num,clock,resetn,load,Enable);
+	input [1:0] num;
+	input clock;
+	input resetn;
+	input load;
+	reg [19:0] Q;
+	output Enable;
+	always @(posedge clock)
+	begin 
+		if(resetn == 1'b0)
+			if (num==0)
+				Q <= 4499999;
+			else
+				Q <= 4499999;
+		else if(load == 1)
+		begin
+			if (Q)
+				Q<=Q-1;
+			else if (num==0)
+				Q <= 4499999;
+			else
+				Q <= 4499999;
+		end
+	end
+	assign Enable = (Q == 0)?1:0;
+endmodule 
+
+
+
+
+
+
+
+

@@ -1,0 +1,2 @@
+Info (10281): Verilog HDL Declaration information at enemy_controller.v(6): object "clock" differs only in case from object "CLOCK" in the same scope
+Info (10281): Verilog HDL Declaration information at enemy_datapath.v(4): object "clock" differs only in case from object "CLOCK" in the same scope

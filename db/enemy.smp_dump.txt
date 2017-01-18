@@ -1,0 +1,16 @@
+
+State Machine - |enemy|enemy_controller:Control_path1|PresentState
+Name PresentState.DONE_S PresentState.DRAW_S PresentState.LOAD_S PresentState.RESET_S PresentState.ERASE_S 
+PresentState.RESET_S 0 0 0 0 0 
+PresentState.LOAD_S 0 0 1 1 0 
+PresentState.DRAW_S 0 1 0 1 0 
+PresentState.DONE_S 1 0 0 1 0 
+PresentState.ERASE_S 0 0 0 1 1 
+
+State Machine - |enemy|enemy_controller:Control_path|PresentState
+Name PresentState.DONE_S PresentState.DRAW_S PresentState.LOAD_S PresentState.RESET_S PresentState.ERASE_S 
+PresentState.RESET_S 0 0 0 0 0 
+PresentState.LOAD_S 0 0 1 1 0 
+PresentState.DRAW_S 0 1 0 1 0 
+PresentState.DONE_S 1 0 0 1 0 
+PresentState.ERASE_S 0 0 0 1 1 
